@@ -1,72 +1,70 @@
-const express = require("express")
-const app = express()
 
-
-// app.use("/books", express.static("books"))
-// app.use("/anotherroute", express.static("anotherroute"))
-app.use (express.json())
-app.get ("/book", (request, response) => {
-    const book = {
-        title:"Lord of the Rings",
-        author:"Tolkien",
-        genre:"fantasy"
-    }
+const express = require("express");
+const app = express();
+require("dotenv").config();
+require("./db/connection");
+//=================================================================
+const Book = require("./modbooks/model");
+app.use(express.json());
+//=========================================
+// gets the info
+//=========================================
+app.get("/books/getallbooks", async (req, res) => {
     const successResponse = {
-        message: "response sent successfully",
-        book: book
-    }
-    // response.send("hello from the book route")
-    response.send(successResponse)
-})
-
-
- app.get("/Anotherroute", (request, response) => {
-    response.send("hello from route 2")
-
-    const successResponse = {
-        message: "response sent successfully",
-        book: book
-    }
-    // response.send("hello from the book route")
-    response.send(successResponse)
- })
-
-app.post("/book", (request, response) => {
-    const newBook = {
-        id: "1234",
+        message: "Response sent successfully",
+        books: bookInv
+      }
+    
+      response.send(successResponse);
+});
+//=========================================
+// posts new info
+//=========================================
+app.post("/books/addbook", async (req, res) => {
+    const newBook = newBook.create({
         title: request.body.title,
         author: request.body.author,
-        genre: request.body.genre,
+        genre: request.body.genre
+});
+response.status(201).json({ message: "OK", data: book });
+});
+//=========================================
+// updates the info
+//=========================================
+app.put("/books/updatebookauthor", async (req, res) => {
+    const match = bookInv.findById(req.params.id);
+
+  if (match) {
+    const updateBook = {
+      id: match.id,
+      title: request.body.title,
+      author: request.body.author,
+      genre: request.body.genre
     }
-    const successSendResponse = {
-        message: "response sent successfully",
-        book: newBook
-    }
-    // response.send("hello from the book route")
-    response.send(successSendResponse)
-    })
-    // response.send("hello from the post route")
 
-app.put("/books/", (request, response) => {
-    console.log(request.body);
-    const newBook = request.body;
-    const successResponse = {
-        message: "new data updated",
-        book: newBook
-    }
-    response.send(successResponse);
-})
+    match.title = updateBook.title ?? match.title;
+    match.author = updateBook.author ?? match.author;
+    match.genre = updateBook.genre ?? match.genre;
 
+    response.send("Input updated");
+  } else {
+    response.sendStatus(400);
+  }
+});
+//=========================================
+// deletes input
+//=========================================
+app.delete("/books/deletebook", async (req, res) => {
+    const match = bookInv.find(book => book.id === parseInt(request.params.id));
+//   const match = bookInv.find(book => book.id === parseInt(request.params.id)); <===helps find specific id
+  if (match) {
+    bookInv = bookInv.filter(book => book.id !== match.id);
+    response.send("Input Deleted");
+  } else {
+    response.sendStatus(400);
+  }
+});
 
-app.delete("/book", (request, response)=>{
-    console.log(request.body);
-    id = request.body.id;
-    const successResponse ={
-        message: "record has been deleted" + id,
-        deleteRecord:id
-    }
-    response.send(successResponse);
-})
+//=================================================================
 
-
-app.listen(5001, () => console.log("server is listening"))
+app.listen(5001, () => console.log("Listen server now open"));
