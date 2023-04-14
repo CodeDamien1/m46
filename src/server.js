@@ -1,60 +1,37 @@
 const express = require("express");
 const app = express();
-
-let bookInv = [{
-    id: 1,
-    title: "Lord of the Rings",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasy"
-},
-{
-    id: 2,
-    title: "The Hobbit",
-    author: "J.R.R. Tolkien",
-    genre: "Fantasy"
-}];
-
+require("dotenv").config();
+require("./db/connection");
+//=================================================================
+const Book = require("./modbooks/model");
 app.use(express.json());
 //=========================================
 // gets the info
 //=========================================
-app.get("/books", (request, response) => {
-  const successResponse = {
-    message: "Response sent successfully",
-    books: bookInv
-  }
-
-  response.send(successResponse);
+app.get("/books/getallbooks", async (req, res) => {
+    const successResponse = {
+        message: "Response sent successfully",
+        books: bookInv
+      }
+    
+      response.send(successResponse);
 });
 //=========================================
 // posts new info
 //=========================================
-app.post("/books", (request, response) => {
-  const newBook = {
-    id: bookInv.length + 1,
-    title: request.body.title,
-    author: request.body.author,
-    genre: request.body.genre
-  }
-
-  bookInv.push(newBook);
-  response.send("Input Received");
-});
-
-app.post("/books/addbook", async (request, response) => {
-    const book = book.create({
+app.post("/books/addbook", async (req, res) => {
+    const newBook = newBook.create({
         title: request.body.title,
         author: request.body.author,
         genre: request.body.genre
 });
 response.status(201).json({ message: "OK", data: book });
 });
-
 //=========================================
 // updates the info
 //=========================================
-app.put("/books/:id", (request, response) => {
-  const match = bookInv.findById(req.params.id);
+app.put("/books/updatebookauthor", async (req, res) => {
+    const match = bookInv.findById(req.params.id);
 
   if (match) {
     const updateBook = {
@@ -76,8 +53,8 @@ app.put("/books/:id", (request, response) => {
 //=========================================
 // deletes input
 //=========================================
-app.delete("/books/:id", (request, response) => {
-  const match = bookInv.find(book => book.id === parseInt(request.params.id));
+app.delete("/books/deletebook", async (req, res) => {
+    const match = bookInv.find(book => book.id === parseInt(request.params.id));
 //   const match = bookInv.find(book => book.id === parseInt(request.params.id)); <===helps find specific id
   if (match) {
     bookInv = bookInv.filter(book => book.id !== match.id);
@@ -86,5 +63,7 @@ app.delete("/books/:id", (request, response) => {
     response.sendStatus(400);
   }
 });
+
+//=================================================================
 
 app.listen(5001, () => console.log("Listen server now open"));
